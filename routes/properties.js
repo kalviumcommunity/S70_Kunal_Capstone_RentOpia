@@ -12,7 +12,7 @@ router.get('/properties', async (req, res) => {
   }
 });
 
-// POST endpoint to add a new rental property using DB
+// POST endpoint to add a new rental property
 router.post('/properties', async (req, res) => {
   const { title, location, price } = req.body;
 
@@ -29,6 +29,25 @@ router.post('/properties', async (req, res) => {
 
     const savedProperty = await newProperty.save();
     res.status(201).json(savedProperty);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT endpoint to update an existing property by ID
+router.put('/properties/:id', async (req, res) => {
+  try {
+    const updatedProperty = await Property.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedProperty) {
+      return res.status(404).json({ error: 'Property not found' });
+    }
+
+    res.status(200).json(updatedProperty);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
