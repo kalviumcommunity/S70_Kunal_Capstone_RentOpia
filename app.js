@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const propertyRoutes = require('./routes/properties'); // corrected filename (property.js)
+const propertyRoutes = require('./routes/properties');
 
 const app = express();
 
@@ -20,7 +20,10 @@ mongoose.connect('mongodb://localhost:27017/rentopia', {
 // Use property routes with /api prefix
 app.use('/api', propertyRoutes);
 
+// Use port from environment or default to 3000
+const PORT = process.env.PORT || 3000;
+
 // Start the server
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
