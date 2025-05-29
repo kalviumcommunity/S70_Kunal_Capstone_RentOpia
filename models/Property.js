@@ -6,10 +6,13 @@ const propertySchema = new mongoose.Schema({
   description: String,
   location: String,
   price: Number,
-  landlord: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   images: [String],
   availableFrom: Date,
-  amenities: [String]
+  amenities: [String],
+
+  // Relationships
+  landlord: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }],
 });
 
 module.exports = mongoose.model('Property', propertySchema);
