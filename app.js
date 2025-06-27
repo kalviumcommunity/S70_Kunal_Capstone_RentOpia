@@ -7,11 +7,15 @@ const app = express();
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/rentopia')
+// MongoDB Atlas Connection using environment variable
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
 .then(() => {
-  console.log('Connected to MongoDB');
-}).catch(err => {
+  console.log('Connected to MongoDB Atlas');
+})
+.catch(err => {
   console.error('MongoDB connection error:', err);
 });
 
