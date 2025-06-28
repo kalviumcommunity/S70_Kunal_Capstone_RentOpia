@@ -3,12 +3,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const path = require('path');
 
 // Load environment variables from .env file
 dotenv.config();
 
 const listingRoutes = require('./routes/listings');
 const propertyRoutes = require('./routes/properties');
+const uploadRoutes = require('./routes/upload'); // 👈 New Route Import
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,6 +24,10 @@ app.get('/', (req, res) => {
 });
 app.use('/api/listings', listingRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/upload', uploadRoutes); // 👈 File Upload Route
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/rentopia', {
