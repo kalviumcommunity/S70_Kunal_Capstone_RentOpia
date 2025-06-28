@@ -1,4 +1,4 @@
-// app.js or server.js
+require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -10,7 +10,8 @@ dotenv.config();
 
 const listingRoutes = require('./routes/listings');
 const propertyRoutes = require('./routes/properties');
-const uploadRoutes = require('./routes/upload'); // 👈 New Route Import
+const uploadRoutes = require('./routes/upload');
+const authRoutes = require('./routes/auth'); // New: Auth Route Import
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,7 +25,8 @@ app.get('/', (req, res) => {
 });
 app.use('/api/listings', listingRoutes);
 app.use('/api/properties', propertyRoutes);
-app.use('/api/upload', uploadRoutes); // 👈 File Upload Route
+app.use('/api/upload', uploadRoutes);
+app.use('/api', authRoutes); // New: Auth Route Mount
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
