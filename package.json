@@ -20,7 +20,10 @@
   "homepage": "https://github.com/kalviumcommunity/S70_Kunal_Capstone_RentOpia#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+<<<<<<< HEAD
     "cors": "^2.8.6",
+=======
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "express-session": "^1.18.1",

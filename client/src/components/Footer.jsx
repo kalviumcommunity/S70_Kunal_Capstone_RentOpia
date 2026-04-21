@@ -1,4 +1,5 @@
 import React from 'react';
+<<<<<<< HEAD
 import { Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -46,6 +47,13 @@ const Footer = () => {
         </div>
 
       </div>
+=======
+
+const Footer = () => {
+  return (
+    <footer className="bg-gray-100 text-center p-4 mt-8">
+      <p>&copy; 2025 RentOpia. All rights reserved.</p>
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
     </footer>
   );
 };

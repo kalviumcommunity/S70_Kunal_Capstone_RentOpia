@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+<<<<<<< HEAD
 const Property = require('../models/Property');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -24,12 +25,21 @@ router.get('/', async (req, res) => {
     }
 
     const properties = await Property.find(query).populate('landlord', 'name email');
+=======
+const Property = require('../models/Property'); // Adjust this path as needed
+
+// GET endpoint to fetch all properties
+router.get('/properties', async (req, res) => {
+  try {
+    const properties = await Property.find();
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
     res.status(200).json(properties);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+<<<<<<< HEAD
 // GET single property
 router.get('/:id', async (req, res) => {
   try {
@@ -47,11 +57,20 @@ router.post('/', protect, authorize('landlord'), async (req, res) => {
 
   if (!title || !location || !price) {
     return res.status(400).json({ error: 'Missing required fields: title, location, price' });
+=======
+// POST endpoint to add a new rental property
+router.post('/properties', async (req, res) => {
+  const { title, location, price } = req.body;
+
+  if (!title || !location || !price) {
+    return res.status(400).json({ error: 'Missing required fields' });
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
   }
 
   try {
     const newProperty = new Property({
       title,
+<<<<<<< HEAD
       description,
       location,
       price,
@@ -59,6 +78,10 @@ router.post('/', protect, authorize('landlord'), async (req, res) => {
       amenities: amenities || [],
       availableFrom,
       landlord: req.user.id // from the protect middleware
+=======
+      location,
+      price,
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
     });
 
     const savedProperty = await newProperty.save();
@@ -69,6 +92,7 @@ router.post('/', protect, authorize('landlord'), async (req, res) => {
 });
 
 // PUT endpoint to update an existing property by ID
+<<<<<<< HEAD
 router.put('/:id', protect, authorize('landlord'), async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
@@ -79,18 +103,30 @@ router.put('/:id', protect, authorize('landlord'), async (req, res) => {
        return res.status(403).json({ error: 'Not authorized to update this property' });
     }
 
+=======
+router.put('/properties/:id', async (req, res) => {
+  try {
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
     const updatedProperty = await Property.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
 
+<<<<<<< HEAD
+=======
+    if (!updatedProperty) {
+      return res.status(404).json({ error: 'Property not found' });
+    }
+
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
     res.status(200).json(updatedProperty);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+<<<<<<< HEAD
 // DELETE property
 router.delete('/:id', protect, authorize('landlord'), async (req, res) => {
   try {
@@ -108,4 +144,6 @@ router.delete('/:id', protect, authorize('landlord'), async (req, res) => {
   }
 });
 
+=======
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
 module.exports = router;

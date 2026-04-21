@@ -4,7 +4,10 @@ const dotenv = require('dotenv');
 const path = require('path');
 const session = require('express-session');
 const passport = require('passport');
+<<<<<<< HEAD
 const cors = require('cors');
+=======
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
 
 // Load environment variables from .env file
 dotenv.config();
@@ -14,6 +17,10 @@ require('./config/passport');
 
 // Route imports
 const listingRoutes = require('./routes/listings');
+<<<<<<< HEAD
+=======
+const propertyRoutes = require('./routes/properties');
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
 const uploadRoutes = require('./routes/upload');
 const authRoutes = require('./routes/auth'); // Auth Route Import
 
@@ -21,7 +28,10 @@ const app = express(); // ✅ Define app before using it
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+<<<<<<< HEAD
 app.use(cors());
+=======
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -40,7 +50,12 @@ app.use(passport.session());
 app.get('/', (req, res) => {
   res.send('RentOpia Backend is Live');
 });
+<<<<<<< HEAD
 app.use('/api/listings', listingRoutes);
+=======
+app.use('/api/listings', listingRoutes); // ✅ This will now include PUT/DELETE
+app.use('/api/properties', propertyRoutes);
+>>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
 app.use('/api/upload', uploadRoutes);
 app.use('/api', authRoutes); // Auth Route Mount
 
