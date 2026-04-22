@@ -1,11 +1,10 @@
-<<<<<<< HEAD
 https://rentopiaa.netlify.app/
  
  # 📦 RentOpia - Capstone Project
 
 ## 🧠 Project Idea
 
-**RentOpia** is a comprehensive rental marketplace platform that connects property owners with tenants. It allows users to list, search, and manage rental properties efficiently. The platform aims to simplify the rental process by integrating features such as user authentication, property filtering, request management, and a clean dashboard for both renters and landlords.
+**RentOpia** is a comprehensive rental marketplace platform that connects owners with renters. It allows users to list, search, and manage rental inventory (Vehicles, Real Estate, Tools, Electronics, etc.) efficiently. The platform simplifies the rental process with integrated user authentication, advanced category filtering, request management, and a futuristic Synthwave dashboard.
 
 ## 🎯 Objective
 
@@ -19,19 +18,19 @@ To build a fully functional web application that demonstrates end-to-end capabil
 - **Day 1:** Create GitHub repo, setup README, and basic file structure.
 - **Day 2:** Research tech stack and create wireframes for UI.
 - **Day 3:** Initialize project with `React` (frontend) and `Node.js/Express` (backend).
-- **Day 4-5:** Setup database schema and backend routes (using MongoDB or PostgreSQL).
+- **Day 4-5:** Setup database schema and backend routes (using MongoDB).
 
 ### Week 2: Core Development
-- **Day 6:** Create user registration and login system.
-- **Day 7:** Build property listing & filtering UI.
-- **Day 8:** Enable landlords to post and manage listings.
-- **Day 9:** Implement tenant request/booking system.
+- **Day 6:** Create user registration and login system (Renter/Owner roles).
+- **Day 7:** Build rental listing & category filtering UI.
+- **Day 8:** Enable owners to post and manage assets.
+- **Day 9:** Implement tenant request/booking sync handshake.
 - **Day 10:** Basic validations and backend integrations.
 
 ### Week 3: Enhancement & Testing
-- **Day 11:** Add dashboard view for renters and owners.
-- **Day 12:** Polish UI using Tailwind CSS / Bootstrap.
-- **Day 13:** Integrate search & filtering logic.
+- **Day 11:** Add Synthwave dashboard view for renters and owners.
+- **Day 12:** Polish UI using Tailwind CSS and Framer Motion for scroll animations.
+- **Day 13:** Integrate advanced search & filtering logic.
 - **Day 14:** Perform testing (unit + manual).
 - **Day 15:** Record presentation video and finalize deployment.
 
@@ -39,11 +38,11 @@ To build a fully functional web application that demonstrates end-to-end capabil
 
 ## 🚀 Tech Stack
 
-- **Frontend:** React.js, Tailwind CSS
+- **Frontend:** React.js (Vite), Tailwind CSS, Framer Motion
 - **Backend:** Node.js, Express.js
-- **Database:** MongoDB or PostgreSQL
+- **Database:** MongoDB
 - **Version Control:** Git & GitHub
-- **Hosting:** Render / Vercel / Netlify
+- **Hosting:** Netlify (Frontend) / Render (Backend)
 
 ---
 
@@ -52,162 +51,3 @@ To build a fully functional web application that demonstrates end-to-end capabil
 - **Student Name:** Kunal  
 - **Squad:** S70  
 - **Project:** Capstone - RentOpia  
-
-# 📦 RentOpia - Capstone Project
-
-## 🧠 Project Idea
-
-**RentOpia** is a comprehensive rental marketplace platform that connects property owners with tenants. It allows users to list, search, and manage rental properties efficiently. The platform aims to simplify the rental process by integrating features such as user authentication, property filtering, request management, and a clean dashboard for both renters and landlords.
-
-## 🎯 Objective
-
-To build a fully functional web application that demonstrates end-to-end capabilities of a rental marketplace using modern web technologies.
-
----
-
-## 📅 Day-by-Day Capstone Plan
-
-### Week 1: Planning & Setup
-- **Day 1:** Create GitHub repo, setup README, and basic file structure.
-- **Day 2:** Research tech stack and create wireframes for UI.
-- **Day 3:** Initialize project with `React` (frontend) and `Node.js/Express` (backend).
-- **Day 4-5:** Setup database schema and backend routes (using MongoDB or PostgreSQL).
-
-### Week 2: Core Development
-- **Day 6:** Create user registration and login system.
-- **Day 7:** Build property listing & filtering UI.
-- **Day 8:** Enable landlords to post and manage listings.
-- **Day 9:** Implement tenant request/booking system.
-- **Day 10:** Basic validations and backend integrations.
-
-### Week 3: Enhancement & Testing
-- **Day 11:** Add dashboard view for renters and owners.
-- **Day 12:** Polish UI using Tailwind CSS / Bootstrap.
-- **Day 13:** Integrate search & filtering logic.
-- **Day 14:** Perform testing (unit + manual).
-- **Day 15:** Record presentation video and finalize deployment.
-
----
-
-## 🚀 Tech Stack
-
-- **Frontend:** React.js, Tailwind CSS
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB or PostgreSQL
-- **Version Control:** Git & GitHub
-- **Hosting:** Render / Vercel / Netlify
-
----
-
-## 🙌 Contributors
-
-- **Student Name:** Kunal  
-- **Squad:** S70  
-- **Project:** Capstone - RentOpia  
-=======
-https://rentopiaa.netlify.app/
- 
- # 📦 RentOpia - Capstone Project
-
-## 🧠 Project Idea
-
-**RentOpia** is a comprehensive rental marketplace platform that connects property owners with tenants. It allows users to list, search, and manage rental properties efficiently. The platform aims to simplify the rental process by integrating features such as user authentication, property filtering, request management, and a clean dashboard for both renters and landlords.
-
-## 🎯 Objective
-
-To build a fully functional web application that demonstrates end-to-end capabilities of a rental marketplace using modern web technologies.
-
----
-
-## 📅 Day-by-Day Capstone Plan
-
-### Week 1: Planning & Setup
-- **Day 1:** Create GitHub repo, setup README, and basic file structure.
-- **Day 2:** Research tech stack and create wireframes for UI.
-- **Day 3:** Initialize project with `React` (frontend) and `Node.js/Express` (backend).
-- **Day 4-5:** Setup database schema and backend routes (using MongoDB or PostgreSQL).
-
-### Week 2: Core Development
-- **Day 6:** Create user registration and login system.
-- **Day 7:** Build property listing & filtering UI.
-- **Day 8:** Enable landlords to post and manage listings.
-- **Day 9:** Implement tenant request/booking system.
-- **Day 10:** Basic validations and backend integrations.
-
-### Week 3: Enhancement & Testing
-- **Day 11:** Add dashboard view for renters and owners.
-- **Day 12:** Polish UI using Tailwind CSS / Bootstrap.
-- **Day 13:** Integrate search & filtering logic.
-- **Day 14:** Perform testing (unit + manual).
-- **Day 15:** Record presentation video and finalize deployment.
-
----
-
-## 🚀 Tech Stack
-
-- **Frontend:** React.js, Tailwind CSS
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB or PostgreSQL
-- **Version Control:** Git & GitHub
-- **Hosting:** Render / Vercel / Netlify
-
----
-
-## 🙌 Contributors
-
-- **Student Name:** Kunal  
-- **Squad:** S70  
-- **Project:** Capstone - RentOpia  
-
-# 📦 RentOpia - Capstone Project
-
-## 🧠 Project Idea
-
-**RentOpia** is a comprehensive rental marketplace platform that connects property owners with tenants. It allows users to list, search, and manage rental properties efficiently. The platform aims to simplify the rental process by integrating features such as user authentication, property filtering, request management, and a clean dashboard for both renters and landlords.
-
-## 🎯 Objective
-
-To build a fully functional web application that demonstrates end-to-end capabilities of a rental marketplace using modern web technologies.
-
----
-
-## 📅 Day-by-Day Capstone Plan
-
-### Week 1: Planning & Setup
-- **Day 1:** Create GitHub repo, setup README, and basic file structure.
-- **Day 2:** Research tech stack and create wireframes for UI.
-- **Day 3:** Initialize project with `React` (frontend) and `Node.js/Express` (backend).
-- **Day 4-5:** Setup database schema and backend routes (using MongoDB or PostgreSQL).
-
-### Week 2: Core Development
-- **Day 6:** Create user registration and login system.
-- **Day 7:** Build property listing & filtering UI.
-- **Day 8:** Enable landlords to post and manage listings.
-- **Day 9:** Implement tenant request/booking system.
-- **Day 10:** Basic validations and backend integrations.
-
-### Week 3: Enhancement & Testing
-- **Day 11:** Add dashboard view for renters and owners.
-- **Day 12:** Polish UI using Tailwind CSS / Bootstrap.
-- **Day 13:** Integrate search & filtering logic.
-- **Day 14:** Perform testing (unit + manual).
-- **Day 15:** Record presentation video and finalize deployment.
-
----
-
-## 🚀 Tech Stack
-
-- **Frontend:** React.js, Tailwind CSS
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB or PostgreSQL
-- **Version Control:** Git & GitHub
-- **Hosting:** Render / Vercel / Netlify
-
----
-
-## 🙌 Contributors
-
-- **Student Name:** Kunal  
-- **Squad:** S70  
-- **Project:** Capstone - RentOpia  
->>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61

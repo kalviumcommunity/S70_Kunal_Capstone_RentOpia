@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const listingSchema = new mongoose.Schema({
-<<<<<<< HEAD
   title: { type: String, required: true },
   description: { type: String, required: true },
   price: { type: Number, required: true },
@@ -20,16 +19,6 @@ const listingSchema = new mongoose.Schema({
   bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }],
   
   createdAt: { type: Date, default: Date.now },
-=======
-  title: String,
-  description: String,
-  price: Number,
-  location: String,
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
->>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
 });
 
 module.exports = mongoose.model('Listing', listingSchema);

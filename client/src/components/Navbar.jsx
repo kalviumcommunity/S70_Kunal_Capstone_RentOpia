@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -83,20 +82,6 @@ const Navbar = () => {
         </div>
       </div>
     </motion.nav>
-=======
-import React from 'react';
-
-const Navbar = () => {
-  return (
-    <nav className="bg-white shadow-md p-4 flex justify-between items-center">
-      <h1 className="text-xl font-bold text-blue-600">RentOpia</h1>
-      <ul className="flex gap-4">
-        <li>Home</li>
-        <li>Properties</li>
-        <li>Contact</li>
-      </ul>
-    </nav>
->>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
   );
 };
 

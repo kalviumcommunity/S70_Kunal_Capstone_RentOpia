@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Listing = require('../models/Listing');
-<<<<<<< HEAD
 const { protect, authorize } = require('../middleware/auth');
 
 // GET endpoint to fetch all listings (with filtering)
@@ -98,49 +97,6 @@ router.delete('/:id', protect, authorize('owner'), async (req, res) => {
     res.status(200).json({ message: 'Listing deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
-=======
-
-// ✅ POST - Create a new listing
-router.post('/', async (req, res) => {
-  try {
-    const newListing = new Listing(req.body);
-    const savedListing = await newListing.save();
-    res.status(201).json(savedListing);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create listing' });
-  }
-});
-
-// ✅ GET - Get all listings
-router.get('/', async (req, res) => {
-  try {
-    const listings = await Listing.find();
-    res.json(listings);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch listings' });
-  }
-});
-
-// ✅ PUT - Update a listing by ID
-router.put('/:id', async (req, res) => {
-  try {
-    const updated = await Listing.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ error: 'Update failed', details: err });
-  }
-});
-
-// ✅ DELETE - Delete a listing by ID
-router.delete('/:id', async (req, res) => {
-  try {
-    await Listing.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ error: 'Delete failed', details: err });
->>>>>>> 9b57c68bcf5a6bfea5297597331253d304fdca61
   }
 });
 
