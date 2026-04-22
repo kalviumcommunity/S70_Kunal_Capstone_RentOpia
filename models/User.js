@@ -4,10 +4,10 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['tenant', 'landlord'], default: 'tenant' },
+  role: { type: String, enum: ['renter', 'owner'], default: 'renter' },
 
   // Relationships
-  properties: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Property' }],
+  listings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Listing' }],
   bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }],
 });
 

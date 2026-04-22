@@ -1,0 +1,110 @@
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
+import { UserPlus } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const Register = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'renter' });
+  const [error, setError] = useState('');
+  const { register } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      await register(formData.name, formData.email, formData.password, formData.role);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Registration sequence aborted.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0B0F19] px-4 py-20 relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-20 right-20 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="absolute bottom-10 left-10 w-96 h-96 bg-cyan-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
+        className="max-w-xl w-full bg-white/5 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_0_50px_rgba(168,85,247,0.1)] p-10 md:p-12 border border-white/10 relative z-10"
+      >
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-500/10 text-purple-400 mb-6 border border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+            <UserPlus size={36} className="pr-1"/>
+          </div>
+          <h2 className="text-4xl font-black text-white tracking-tight">Construct Profile</h2>
+          <p className="text-gray-400 mt-2 font-light">Establish your presence in the network.</p>
+        </div>
+
+        {error && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 p-4 bg-red-500/10 border border-red-500/50 text-red-400 rounded-xl text-sm">{error}</motion.div>}
+
+        <form onSubmit={handleRegister} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="group">
+                <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-2 group-focus-within:text-purple-400 transition-colors">Designation</label>
+                <input 
+                  type="text" required
+                  className="w-full px-5 py-4 bg-black/40 rounded-xl border border-white/10 text-white placeholder-gray-600 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none transition-all shadow-inner"
+                  placeholder="Operator Name"
+                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                />
+              </div>
+              <div className="group">
+                <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-2 group-focus-within:text-purple-400 transition-colors">Network ID</label>
+                <input 
+                  type="email" required
+                  className="w-full px-5 py-4 bg-black/40 rounded-xl border border-white/10 text-white placeholder-gray-600 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none transition-all shadow-inner"
+                  placeholder="you@grid.io"
+                  value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
+                />
+              </div>
+          </div>
+          <div className="group">
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-2 group-focus-within:text-cyan-400 transition-colors">Passphrase</label>
+            <input 
+              type="password" required
+              className="w-full px-5 py-4 bg-black/40 rounded-xl border border-white/10 text-white placeholder-gray-600 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none transition-all shadow-inner"
+              placeholder="••••••••"
+              value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}
+            />
+          </div>
+          
+          <div className="pt-2">
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-4 text-center">Select Operating Class</label>
+            <div className="grid grid-cols-2 gap-4">
+              <button 
+                type="button"
+                onClick={() => setFormData({...formData, role: 'renter'})}
+                className={`py-4 px-4 rounded-xl border font-black uppercase tracking-widest text-sm transition-all shadow-lg ${formData.role === 'renter' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.2)]' : 'border-white/10 text-gray-500 bg-black/40 hover:border-white/30 hover:text-gray-300'}`}
+              >
+                Renter
+              </button>
+              <button 
+                type="button"
+                onClick={() => setFormData({...formData, role: 'owner'})}
+                className={`py-4 px-4 rounded-xl border font-black uppercase tracking-widest text-sm transition-all shadow-lg ${formData.role === 'owner' ? 'border-purple-400 bg-purple-500/10 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'border-white/10 text-gray-500 bg-black/40 hover:border-white/30 hover:text-gray-300'}`}
+              >
+                Owner
+              </button>
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            className="w-full py-5 mt-6 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all active:scale-[0.98] hover:scale-[1.02]"
+          >
+            Construct
+          </button>
+        </form>
+
+        <p className="mt-10 text-center text-gray-500 text-sm">
+          Link established already? <Link to="/login" className="text-purple-400 font-bold hover:text-purple-300 hover:underline transition-all">Authenticate</Link>
+        </p>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Register;
