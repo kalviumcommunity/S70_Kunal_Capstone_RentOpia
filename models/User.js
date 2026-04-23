@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['renter', 'owner'], default: 'renter' },
+  role: { type: String, enum: ['renter', 'owner', 'admin'], default: 'renter' },
 
   // Relationships
   listings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Listing' }],

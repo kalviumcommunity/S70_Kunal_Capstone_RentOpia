@@ -1,14 +1,42 @@
-// models/Booking.js
-module.exports = (sequelize, DataTypes) => {
-    const Booking = sequelize.define("Booking", {
-      startDate: DataTypes.DATE,
-      endDate: DataTypes.DATE,
-    });
-  
-    Booking.associate = (models) => {
-      Booking.belongsTo(models.User, { foreignKey: "userId" });
-      Booking.belongsTo(models.Property, { foreignKey: "propertyId" });
-    };
-  
-    return Booking;
-  };  
+const mongoose = require('mongoose');
+
+const bookingSchema = new mongoose.Schema({
+  listing: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Listing',
+    required: true
+  },
+  renter: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true
+  },
+  totalPrice: {
+    type: Number,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'confirmed', 'cancelled', 'completed'],
+    default: 'pending'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+module.exports = mongoose.model('Booking', bookingSchema);
