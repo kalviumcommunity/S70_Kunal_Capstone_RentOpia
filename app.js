@@ -51,6 +51,15 @@ app.use('/api', authRoutes); // Auth Route Mount
 // Static file serving
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve frontend in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/dist')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
+  });
+}
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/rentopia', {
   useNewUrlParser: true,

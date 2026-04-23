@@ -7,8 +7,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Set default axios base URL
-  axios.defaults.baseURL = 'http://localhost:5000/api';
+  // Set dynamic axios base URL for Production
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     const checkAuth = async () => {

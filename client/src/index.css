@@ -9,6 +9,18 @@
     --accent: #6366f1;
     --text-main: #f8fafc;
     --text-dim: #94a3b8;
+    --border-alpha: rgba(255, 255, 255, 0.05);
+  }
+
+  [data-theme='light'] {
+    --bg-deep: #f8fafc;
+    --bg-card: #ffffff90;
+    --primary: #0891b2;
+    --secondary: #7e22ce;
+    --accent: #4f46e5;
+    --text-main: #0f172a;
+    --text-dim: #475569;
+    --border-alpha: rgba(0, 0, 0, 0.05);
   }
 
   * {
@@ -49,18 +61,19 @@
 
 @layer utilities {
   .glass {
-    background: rgba(15, 23, 42, 0.6);
+    background: var(--bg-card);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-alpha);
   }
   
   .glass-hover {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .glass-hover:hover {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: rgba(34, 211, 238, 0.3);
+    background: var(--bg-card);
+    border-color: var(--primary);
     transform: translateY(-2px);
+    filter: brightness(1.05);
   }
 
   .glow-cyan {
@@ -93,8 +106,8 @@
   .grid-bg {
     background-size: 40px 40px;
     background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      linear-gradient(to right, var(--border-alpha) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-alpha) 1px, transparent 1px);
   }
 }
 
