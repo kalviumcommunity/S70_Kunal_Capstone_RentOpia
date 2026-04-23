@@ -18,7 +18,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="flex flex-col min-h-screen bg-[#0B0F19] text-gray-100 font-sans selection:bg-cyan-500/30">
+        <div className="flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-main)] font-sans selection:bg-[var(--primary)]/30 transition-colors duration-500">
           <Navbar />
           <main className="flex-grow pb-10">
             <Routes>
