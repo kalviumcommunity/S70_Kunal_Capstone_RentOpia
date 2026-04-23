@@ -1,13 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Home, LogOut, User } from 'lucide-react';
+import { Home, LogOut, User, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +17,15 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   const handleLogout = () => {
     logout();
@@ -29,7 +39,7 @@ const Navbar = () => {
       transition={{ duration: 0.5 }}
       className={`fixed top-0 w-full z-50 transition-all duration-500 border-b ${
         scrolled 
-          ? 'bg-slate-950/80 backdrop-blur-2xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]' 
+          ? 'bg-[var(--bg-card)] backdrop-blur-2xl border-[var(--border-alpha)] shadow-[0_8px_32px_rgba(0,0,0,0.4)]' 
           : 'bg-transparent border-transparent'
       } text-xs font-bold tracking-widest uppercase`}
     >
@@ -41,13 +51,13 @@ const Navbar = () => {
             <div className="bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 text-white p-2.5 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
                <Home size={22} strokeWidth={2.5} />
             </div>
-            <span className="text-2xl font-black text-white tracking-tighter group-hover:text-cyan-400 transition-colors">
+            <span className="text-2xl font-black text-[var(--text-main)] tracking-tighter group-hover:text-cyan-400 transition-colors">
               Rent<span className="text-cyan-400">Opia</span>
             </span>
           </Link>
 
           {/* Links */}
-          <ul className="hidden md:flex items-center gap-8 text-gray-300">
+          <ul className="hidden md:flex items-center gap-8 text-[var(--text-dim)]">
             <li><Link to="/" className="hover:text-cyan-400 hover:glow-text-cyan transition-all">Home</Link></li>
             <li><Link to="/properties" className="hover:text-cyan-400 hover:glow-text-cyan transition-all">Explore Rentals</Link></li>
             {user && (
@@ -60,6 +70,15 @@ const Navbar = () => {
 
           {/* Auth Button */}
           <div className="flex items-center gap-4">
+            {/* Theme Toggle */}
+            <button 
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-alpha)] text-[var(--text-main)] hover:border-cyan-400 transition-all group shadow-inner"
+              title="Toggle Light/Dark Protocol"
+            >
+              {theme === 'dark' ? <Sun size={18} className="group-hover:rotate-45 transition-transform" /> : <Moon size={18} className="group-hover:-rotate-12 transition-transform" />}
+            </button>
+
             {user ? (
               <div className="flex items-center gap-4">
                  <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 bg-purple-500/10 border border-purple-500/30 text-purple-300 rounded-lg shadow-[0_0_10px_rgba(168,85,247,0.2)]">
@@ -74,9 +93,9 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                <Link to="/login" className="text-gray-300 hover:text-cyan-400 font-bold px-4 py-2 transition-all hover:glow-text-cyan">Sign in</Link>
+                <Link to="/login" className="text-[var(--text-dim)] hover:text-cyan-400 font-bold px-4 py-2 transition-all hover:glow-text-cyan">Sign in</Link>
                 <Link to="/register" className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all active:scale-95 border border-cyan-400/50">
-                  Register
+                   Register
                 </Link>
               </>
             )}
