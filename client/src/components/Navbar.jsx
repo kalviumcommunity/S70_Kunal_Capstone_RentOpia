@@ -27,22 +27,22 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${
+      className={`fixed top-0 w-full z-50 transition-all duration-500 border-b ${
         scrolled 
-          ? 'bg-[#0B0F19]/80 backdrop-blur-xl border-cyan-500/20 shadow-[0_4px_30px_rgba(34,211,238,0.1)]' 
+          ? 'bg-slate-950/80 backdrop-blur-2xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]' 
           : 'bg-transparent border-transparent'
-      } text-sm font-medium`}
+      } text-xs font-bold tracking-widest uppercase`}
     >
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
         <div className="flex justify-between items-center h-20">
           
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-gradient-to-br from-cyan-400 to-purple-500 text-[#0B0F19] p-2 rounded-xl group-hover:glow-cyan transition-all shadow-md">
-               <Home size={24} strokeWidth={2.5} />
+            <div className="bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 text-white p-2.5 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+               <Home size={22} strokeWidth={2.5} />
             </div>
-            <span className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 tracking-tight glow-text-cyan group-hover:text-cyan-300 transition-all">
-              RentOpia
+            <span className="text-2xl font-black text-white tracking-tighter group-hover:text-cyan-400 transition-colors">
+              Rent<span className="text-cyan-400">Opia</span>
             </span>
           </Link>
 
@@ -52,6 +52,9 @@ const Navbar = () => {
             <li><Link to="/properties" className="hover:text-cyan-400 hover:glow-text-cyan transition-all">Explore Rentals</Link></li>
             {user && (
               <li><Link to="/dashboard" className="hover:text-purple-400 hover:glow-text-purple transition-all">Dashboard</Link></li>
+            )}
+            {user && user.role === 'admin' && (
+              <li><Link to="/admin" className="text-red-400 hover:text-red-300 font-black uppercase tracking-tighter transition-all hover:glow-text-red border border-red-500/20 px-3 py-1 rounded-lg bg-red-500/5 shadow-[0_0_10px_rgba(239,68,68,0.1)]">Registry</Link></li>
             )}
           </ul>
 

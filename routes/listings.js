@@ -3,11 +3,18 @@ const router = express.Router();
 const Listing = require('../models/Listing');
 const { protect, authorize } = require('../middleware/auth');
 
-// GET endpoint to fetch all listings (with filtering)
+// GET endpoint to fetch all listings (with advanced filtering & pagination)
+// @route   GET /api/listings
+// @query   category, location, maxPrice, search, page, limit
 router.get('/', async (req, res) => {
   try {
     const { location, maxPrice, search, category } = req.query;
     
+    // Pagination logic
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6; // Default to 6 per page
+    const skip = (page - 1) * limit;
+
     let query = {};
     
     if (location) query.location = { $regex: location, $options: 'i' };
@@ -20,8 +27,25 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    const listings = await Listing.find(query).populate('owner', 'name email');
-    res.status(200).json(listings);
+    // Execute queries in parallel for better performance
+    const [listings, total] = await Promise.all([
+      Listing.find(query)
+        .populate('owner', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Listing.countDocuments(query)
+    ]);
+
+    res.status(200).json({
+      listings,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+        limit
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -84,12 +108,13 @@ router.put('/:id', protect, authorize('owner'), async (req, res) => {
 });
 
 // DELETE listing
-router.delete('/:id', protect, authorize('owner'), async (req, res) => {
+router.delete('/:id', protect, authorize('owner', 'admin'), async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
     if (!listing) return res.status(404).json({ error: 'Listing not found' });
     
-    if (listing.owner.toString() !== req.user.id) {
+    // Allow delete if owner OR admin
+    if (listing.owner.toString() !== req.user.id && req.user.role !== 'admin') {
        return res.status(403).json({ error: 'Not authorized to delete this listing' });
     }
 

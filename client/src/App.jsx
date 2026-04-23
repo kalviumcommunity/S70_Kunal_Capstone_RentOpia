@@ -12,6 +12,7 @@ import PropertyDetails from './pages/PropertyDetails';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AdminHub from './pages/AdminHub';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin" element={<AdminHub />} />
             </Routes>
           </main>
           <Footer />

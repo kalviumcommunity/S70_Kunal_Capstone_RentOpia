@@ -15,6 +15,8 @@ require('./config/passport');
 // Route imports
 const listingRoutes = require('./routes/listings');
 const uploadRoutes = require('./routes/upload');
+const bookingRoutes = require('./routes/bookings');
+const reviewRoutes = require('./routes/reviews');
 const authRoutes = require('./routes/auth'); // Auth Route Import
 
 const app = express(); // ✅ Define app before using it
@@ -42,6 +44,8 @@ app.get('/', (req, res) => {
 });
 app.use('/api/listings', listingRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/reviews', reviewRoutes);
 app.use('/api', authRoutes); // Auth Route Mount
 
 // Static file serving
@@ -53,9 +57,11 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/rentopia', 
   useUnifiedTopology: true,
 })
 .then(() => {
-  console.log('MongoDB connected');
+  const dbName = mongoose.connection.name;
+  const host = mongoose.connection.host;
+  console.log(`Grid Synced: Connected to [${dbName}] at ${host}`);
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Mainframe operational on port ${PORT}`);
   });
 })
 .catch((err) => {

@@ -1,167 +1,237 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { PlusCircle, Edit, Trash2, Cpu } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Cpu, Upload, Loader2, Clock, Calendar, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const Dashboard = () => {
-    const { user, loading } = useContext(AuthContext);
-    const [myListings, setMyListings] = useState([]);
-    const [fetchLoading, setFetchLoading] = useState(false);
-
-    // Form state for adding a listing
+    const { user, loading: authLoading } = useContext(AuthContext);
+    const queryClient = useQueryClient();
+    const [activeTab, setActiveTab] = useState('inventory');
+    const [uploading, setUploading] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [formData, setFormData] = useState({ 
-        title: '', description: '', price: '', pricingBasis: '/day', location: '', category: 'Vehicles' 
+        title: '', description: '', price: '', pricingBasis: '/day', location: '', category: 'Vehicles', images: [] 
     });
 
-    useEffect(() => {
-        if (user?.role === 'owner') {
-            fetchMyListings();
-        }
-    }, [user]);
+    // React Query: Fetch Dashboard Data
+    const { data: dashboardData, isLoading: fetchLoading } = useQuery({
+        queryKey: ['dashboard', user?.id],
+        queryFn: async () => {
+            const [listingRes, incomingRes, rentalRes] = await Promise.all([
+                axios.get('/listings'),
+                user.role === 'owner' ? axios.get('/bookings/incoming') : Promise.resolve({ data: [] }),
+                axios.get('/bookings/my-rentals')
+            ]);
 
-    const fetchMyListings = async () => {
-        setFetchLoading(true);
-        try {
-            const res = await axios.get('/listings');
-            const mine = res.data.filter(p => typeof p.owner === 'object' ? p.owner._id === user.id : p.owner === user.id);
-            setMyListings(mine);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setFetchLoading(false);
-        }
-    };
+            const mine = listingRes.data.listings.filter(p => 
+                typeof p.owner === 'object' ? p.owner._id === user.id : p.owner === user.id
+            );
 
-    const handleAddSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const numPrice = Number(formData.price) || 0;
-            await axios.post('/listings', { ...formData, price: numPrice });
+            return {
+                myListings: mine,
+                incomingBookings: incomingRes.data,
+                myRentals: rentalRes.data
+            };
+        },
+        enabled: !!user
+    });
+
+    // Mutations
+    const addListingMutation = useMutation({
+        mutationFn: (newData) => axios.post('/listings', newData),
+        onSuccess: () => {
+            queryClient.invalidateQueries(['dashboard']);
             setShowAddForm(false);
-            setFormData({ title: '', description: '', price: '', pricingBasis: '/day', location: '', category: 'Vehicles' });
-            fetchMyListings();
-        } catch (err) {
-            console.error(err);
-            alert("Failed to add listing");
+            setFormData({ title: '', description: '', price: '', pricingBasis: '/day', location: '', category: 'Vehicles', images: [] });
         }
+    });
+
+    const statusMutation = useMutation({
+        mutationFn: ({ id, status }) => axios.patch(`/bookings/${id}/status`, { status }),
+        onSuccess: () => queryClient.invalidateQueries(['dashboard'])
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id) => axios.delete(`/listings/${id}`),
+        onSuccess: () => queryClient.invalidateQueries(['dashboard'])
+    });
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setUploading(true);
+        const data = new FormData();
+        data.append('file', file);
+        try {
+            const res = await axios.post('/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+            setFormData(prev => ({ ...prev, images: [res.data.path] }));
+        } catch (err) { 
+            console.error(err);
+            alert("Upload failed. Error: " + (err.response?.data?.error || err.message)); 
+        } finally { setUploading(false); }
     };
 
-    const handleDelete = async (id) => {
-        if(window.confirm('WARNING: Deleting module. Are you sure?')) {
-            try {
-                await axios.delete(`/listings/${id}`);
-                fetchMyListings();
-            } catch(e) { console.error(e); }
-        }
-    }
+    if (authLoading) return null;
+    if (!user) return <div className="pt-32 text-center text-cyan-400 font-mono">UNAUTHORIZED.</div>;
 
-    if (loading) return null;
-
-    if (!user) {
-        return <div className="text-center pt-32 text-xl font-bold font-mono text-cyan-400">UNAUTHORIZED ACCESS. PLEASE AUTHENTICATE.</div>;
-    }
+    const { myListings = [], incomingBookings = [], myRentals = [] } = dashboardData || {};
 
     return (
-        <div className="min-h-screen pt-28 pb-10 px-4 relative">
-            <div className="absolute inset-0 bg-[#0B0F19] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
-            
-            <div className="max-w-6xl mx-auto relative z-10">
-                <motion.div 
-                    initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}
-                    className="mb-12 p-10 bg-gradient-to-r from-[#1e1b4b] to-[#172554] border border-indigo-500/30 rounded-3xl text-white shadow-[0_0_40px_rgba(79,70,229,0.15)] relative overflow-hidden"
-                >
-                    <div className="absolute top-0 right-0 p-12 opacity-5">
-                        <Cpu size={150}/>
-                    </div>
-                    <div className="relative z-10">
-                        <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tight">Mainframe Access: <span className="text-cyan-400 glow-text-cyan">{user.name || 'User'}</span></h1>
-                        <p className="text-indigo-200 text-lg flex items-center gap-3">
-                             Clearance: <span className="bg-indigo-500/20 border border-indigo-400/50 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-indigo-300">{user.role}</span>
-                        </p>
+        <div className="min-h-screen pt-28 pb-20 px-4">
+            <div className="max-w-6xl mx-auto">
+                <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-12 p-8 bg-black/40 border border-white/10 rounded-3xl relative overflow-hidden backdrop-blur-md">
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <h1 className="text-4xl font-black text-white mb-2 tracking-tighter">Mainframe Hub</h1>
+                            <p className="text-cyan-500 font-mono text-[10px] uppercase tracking-widest">Operator: {user.name} // Access Protocol Active</p>
+                        </div>
+                        {user.role === 'owner' && (
+                             <div className="flex bg-black/60 p-1 rounded-2xl border border-white/5">
+                                {['inventory', 'handshakes'].map(tab => (
+                                    <button key={tab} onClick={() => setActiveTab(tab)} className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-400/20' : 'text-gray-500 hover:text-white'}`}>
+                                        {tab} {tab === 'handshakes' && incomingBookings.length > 0 && `(${incomingBookings.length})`}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </motion.div>
 
-                {user.role === 'owner' ? (
-                    <div>
-                        <div className="flex justify-between items-center mb-10">
-                            <h2 className="text-3xl font-bold text-white">Active Modules</h2>
-                            <button onClick={() => setShowAddForm(!showAddForm)} className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)]">
-                                <PlusCircle size={20}/> {showAddForm ? 'Abort' : 'Deploy Module'}
-                            </button>
-                        </div>
+                <div className="space-y-12">
+                    {/* Inventory/Handshake Section */}
+                    {user.role === 'owner' ? (
+                        activeTab === 'inventory' ? (
+                            <section>
+                                <div className="flex justify-between items-center mb-8">
+                                    <h2 className="text-xl font-bold text-white flex items-center gap-2 uppercase tracking-widest"><Cpu size={20} className="text-cyan-400"/> My Deployed Inventory</h2>
+                                    <button onClick={() => setShowAddForm(!showAddForm)} className="bg-cyan-500 hover:bg-cyan-400 text-black px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+                                        {showAddForm ? 'Abort' : 'Deploy Asset'}
+                                    </button>
+                                </div>
 
-                        <AnimatePresence>
-                            {showAddForm && (
-                               <motion.div 
-                                    initial={{ opacity:0, height: 0 }} 
-                                    animate={{ opacity:1, height: 'auto' }} 
-                                    exit={{ opacity:0, height: 0 }}
-                                    className="bg-white/5 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/10 mb-12 overflow-hidden"
-                                >
-                                   <h3 className="text-2xl font-bold mb-8 text-cyan-400 flex items-center gap-2"><Cpu /> Deploy New Asset</h3>
-                                   <form onSubmit={handleAddSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <input type="text" placeholder="Designation Title" required className="bg-black/50 border border-white/10 text-white p-4 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none" value={formData.title} onChange={e=>setFormData({...formData, title: e.target.value})} />
-                                        
-                                        <select className="bg-black/50 border border-white/10 text-white p-4 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none cursor-pointer appearance-none" value={formData.category} onChange={e=>setFormData({...formData, category: e.target.value})}>
-                                            <option value="Vehicles" className="bg-gray-900">Vehicles</option>
-                                            <option value="Real Estate" className="bg-gray-900">Real Estate</option>
-                                            <option value="Furniture" className="bg-gray-900">Furniture</option>
-                                            <option value="Electronics" className="bg-gray-900">Electronics</option>
-                                            <option value="Utensils" className="bg-gray-900">Utensils</option>
-                                            <option value="Tools" className="bg-gray-900">Tools</option>
-                                            <option value="Other" className="bg-gray-900">Other</option>
-                                        </select>
+                                <AnimatePresence>
+                                    {showAddForm && (
+                                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-white/5 border border-white/10 rounded-3xl p-8 mb-12 overflow-hidden shadow-2xl">
+                                            <form onSubmit={(e)=>{ e.preventDefault(); addListingMutation.mutate({...formData, price: Number(formData.price)}); }} className="grid md:grid-cols-2 gap-6 font-mono">
+                                                <input type="text" placeholder="Designation" className="bg-black/40 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-cyan-400 text-xs" value={formData.title} onChange={e=>setFormData({...formData, title: e.target.value})} required />
+                                                <select className="bg-black/40 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-cyan-400 text-xs" value={formData.category} onChange={e=>setFormData({...formData, category: e.target.value})}>
+                                                    {['Vehicles', 'Real Estate', 'Electronics', 'Furniture', 'Tools'].map(c => <option key={c} value={c}>{c}</option>)}
+                                                </select>
+                                                <div className="md:col-span-2">
+                                                    <label className="flex items-center justify-center border-2 border-dashed border-white/10 rounded-2xl p-6 bg-black/20 cursor-pointer hover:border-cyan-500/30 transition-all">
+                                                        {uploading ? <Loader2 className="animate-spin text-cyan-400" /> : formData.images.length > 0 ? <img src={formData.images[0]} className="w-20 h-20 object-cover rounded-lg" alt="Preview"/> : <div className="text-center font-mono text-[9px] text-gray-500 uppercase tracking-widest"><Upload className="mx-auto mb-2 opacity-50"/> Link Visual Matrix</div>}
+                                                        <input type="file" className="hidden" onChange={handleFileUpload} />
+                                                    </label>
+                                                </div>
+                                                <input type="number" placeholder="Credits" className="bg-black/40 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-cyan-400 text-xs" value={formData.price} onChange={e=>setFormData({...formData, price: e.target.value})} required />
+                                                <input type="text" placeholder="Sector" className="bg-black/40 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-cyan-400 text-xs" value={formData.location} onChange={e=>setFormData({...formData, location: e.target.value})} />
+                                                <textarea placeholder="Data Specs" className="md:col-span-2 bg-black/40 border border-white/10 p-4 rounded-xl text-white h-24 outline-none focus:border-cyan-400 text-xs" value={formData.description} onChange={e=>setFormData({...formData, description: e.target.value})} />
+                                                <button type="submit" disabled={addListingMutation.isLoading} className="md:col-span-2 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-black py-4 rounded-xl font-black uppercase tracking-[0.3em] text-[10px] shadow-lg">Execute Uplink Sequence</button>
+                                            </form>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
-                                        <input type="text" placeholder="Sector (Location)" className="bg-black/50 border border-white/10 text-white p-4 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none" value={formData.location} onChange={e=>setFormData({...formData, location: e.target.value})} />
-                                        
-                                        <div className="flex gap-4">
-                                            <input type="number" placeholder="Credits" required className="bg-black/50 border border-white/10 text-white p-4 rounded-xl flex-grow focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none" value={formData.price} onChange={e=>setFormData({...formData, price: e.target.value})} />
-                                            <select className="bg-black/50 border border-white/10 text-white p-4 rounded-xl focus:border-cyan-400 outline-none w-32 cursor-pointer appearance-none" value={formData.pricingBasis} onChange={e=>setFormData({...formData, pricingBasis: e.target.value})}>
-                                                <option value="/day" className="bg-gray-900">/ Day</option>
-                                                <option value="/week" className="bg-gray-900">/ Week</option>
-                                                <option value="/mo" className="bg-gray-900">/ Month</option>
-                                            </select>
-                                        </div>
-
-                                        <textarea placeholder="Data Log (Description)" required className="bg-black/50 border border-white/10 text-white p-4 rounded-xl md:col-span-2 h-32 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none" value={formData.description} onChange={e=>setFormData({...formData, description: e.target.value})}></textarea>
-                                        <button type="submit" className="md:col-span-2 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-black p-4 rounded-xl font-bold text-lg shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-transform active:scale-[0.98]">Uplink Asset to Grid</button>
-                                   </form>
-                               </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        {fetchLoading ? (
-                             <p className="text-cyan-400 animate-pulse font-mono flex items-center justify-center py-20">FETCHING DATABANKS...</p>
+                                {fetchLoading ? (
+                                    <SkeletonLoader count={3} />
+                                ) : (
+                                    <div className="grid md:grid-cols-3 gap-6">
+                                        {myListings.length === 0 && <p className="text-gray-600 italic text-xs py-10 font-mono tracking-widest">IDLE. NO DEPLOYED ASSETS DETECTED.</p>}
+                                        {myListings.map(item => (
+                                            <div key={item._id} className="bg-white/5 border border-white/5 p-4 rounded-3xl hover:bg-white/10 transition-all group shadow-xl">
+                                                <div className="aspect-video rounded-2xl overflow-hidden mb-4 relative bg-black">
+                                                    <img src={item.images?.[0] || 'https://via.placeholder.com/400'} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" alt={item.title}/>
+                                                    <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-[8px] font-bold text-gray-400 uppercase tracking-widest">{item.category}</div>
+                                                </div>
+                                                <h4 className="text-white font-bold text-sm truncate mb-1">{item.title}</h4>
+                                                <div className="flex justify-between items-end">
+                                                    <p className="text-cyan-400 font-mono text-xs font-bold tracking-tighter">${item.price}<span className="text-[10px] text-gray-600 font-normal">{item.pricingBasis}</span></p>
+                                                    <button onClick={()=>deleteMutation.mutate(item._id)} className="p-2 text-red-500/30 hover:text-red-500 transition-colors"><Trash2 size={14}/></button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
                         ) : (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {myListings.length === 0 ? <p className="col-span-full border border-dashed border-white/10 p-10 text-center rounded-2xl text-gray-500">No assets currently deployed.</p> : null}
-                                {myListings.map(p => (
-                                    <motion.div whileHover={{ y: -5 }} key={p._id} className="bg-[#111827]/80 backdrop-blur-md rounded-3xl p-6 border border-white/10 flex flex-col shadow-lg group hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(34,211,238,0.1)] transition-all">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="inline-block bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">{p.category}</div>
-                                            <div className="text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">${p.price}<span className="text-xs text-cyan-200">{p.pricingBasis}</span></div>
+                            <section>
+                                <h2 className="text-xl font-bold text-white mb-8 uppercase tracking-widest flex items-center gap-2"><Clock size={20} className="text-purple-400"/> Sync Requests</h2>
+                                {fetchLoading ? (
+                                    <div className="space-y-4">
+                                        {[1,2,3].map(i => <div key={i} className="h-24 bg-white/5 rounded-2xl animate-pulse" />)}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {incomingBookings.length === 0 && <p className="text-gray-600 font-mono py-12 text-center text-[10px] uppercase tracking-widest border border-dashed border-white/5 rounded-3xl">Standby. No active signals.</p>}
+                                        {incomingBookings.map(b => (
+                                            <div key={b._id} className="bg-white/5 border border-white/10 p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 hover:border-purple-500/30 transition-all">
+                                                <div className="flex items-center gap-5">
+                                                    <div className="w-12 h-12 bg-black rounded-lg overflow-hidden flex-shrink-0 border border-white/5">
+                                                        <img src={b.listing?.images?.[0]} className="w-full h-full object-cover" alt="asset" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-white font-bold text-sm">{b.listing?.title}</h4>
+                                                        <p className="text-[9px] text-gray-500 font-mono uppercase tracking-tighter">Origin: {b.renter?.name}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-6">
+                                                    <div className="text-right">
+                                                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-tighter"><Calendar className="inline mr-1" size={10}/> {new Date(b.startDate).toLocaleDateString()} - {new Date(b.endDate).toLocaleDateString()}</p>
+                                                        <p className="text-cyan-400 font-black text-lg font-mono">${b.totalPrice}</p>
+                                                    </div>
+                                                    {b.status === 'pending' ? (
+                                                        <div className="flex gap-2 font-mono">
+                                                            <button onClick={()=>statusMutation.mutate({id: b._id, status: 'confirmed'})} className="bg-cyan-500 text-black px-4 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-cyan-400 transition-all shadow-[0_0_10px_rgba(34,211,238,0.2)]">Settle</button>
+                                                            <button onClick={()=>statusMutation.mutate({id: b._id, status: 'cancelled'})} className="border border-red-500/50 text-red-500 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-red-500/10 transition-all">Void</button>
+                                                        </div>
+                                                    ) : (
+                                                        <span className={`text-[8px] font-black uppercase border px-3 py-1 rounded-full tracking-widest ${b.status === 'confirmed' ? 'border-cyan-500 text-cyan-400 bg-cyan-500/10' : 'border-red-500 text-red-400 bg-red-400/10'}`}>{b.status}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
+                        )
+                    ) : null}
+
+                    {/* Rental History Card */}
+                    <section>
+                        <h2 className="text-xl font-bold text-white mb-8 uppercase tracking-widest flex items-center gap-2"><ShieldCheck size={20} className="text-indigo-400"/> Current Uplinks</h2>
+                        {fetchLoading ? (
+                             <div className="grid md:grid-cols-2 gap-6">
+                                {[1,2].map(i => <div key={i} className="h-40 bg-white/5 rounded-[2rem] animate-pulse" />)}
+                             </div>
+                        ) : (
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {myRentals.length === 0 && <div className="col-span-full border border-dashed border-white/5 py-12 text-center text-[10px] text-gray-600 font-mono tracking-widest rounded-3xl">NULL LINKAGE DETECTED. EXPLORE THE GRID TO COMMENCE.</div>}
+                                {myRentals.map(b => (
+                                    <div key={b._id} className="bg-gradient-to-br from-white/5 to-black/40 border border-white/10 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group hover:border-indigo-500/30 transition-all">
+                                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                                            <Zap size={40} className="text-indigo-400" />
                                         </div>
-                                        <h4 className="text-xl font-bold mb-2 text-white group-hover:text-cyan-300 transition-colors">{p.title}</h4>
-                                        <p className="text-gray-500 mb-6 text-sm">{p.location || 'Global Sector'}</p>
-                                        <div className="mt-auto flex gap-3 pt-4 border-t border-white/5">
-                                            <button className="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-xl font-bold text-gray-300 transition-colors flex items-center justify-center gap-2 text-sm"><Edit size={16}/> Modify</button>
-                                            <button onClick={() => handleDelete(p._id)} className="flex-1 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-500 py-2 rounded-xl font-bold flex items-center justify-center gap-2 text-sm transition-colors"><Trash2 size={16}/> Purge</button>
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div>
+                                                <h4 className="text-lg font-bold text-white mb-1 tracking-tight">{b.listing?.title}</h4>
+                                                <p className="text-[9px] text-gray-500 font-mono uppercase tracking-widest">Node Node: {b.owner?.name}</p>
+                                            </div>
+                                            <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-full border tracking-widest ${b.status === 'confirmed' ? 'text-cyan-400 bg-cyan-400/10 border-cyan-400/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]' : b.status === 'pending' ? 'text-yellow-500 bg-yellow-500/10 border-yellow-400/30' : 'text-red-500 bg-red-500/10 border-red-500/30'}`}>{b.status}</span>
                                         </div>
-                                    </motion.div>
+                                        <div className="flex justify-between items-end">
+                                            <p className="text-[9px] text-gray-500 flex items-center gap-2 font-mono uppercase tracking-tighter"><Calendar size={12} className="text-indigo-400"/> {new Date(b.startDate).toLocaleDateString()} - {new Date(b.endDate).toLocaleDateString()}</p>
+                                            <p className="text-2xl font-black text-cyan-400 font-mono tracking-tighter glow-text-cyan">${b.totalPrice}</p>
+                                        </div>
+                                    </div>
                                 ))}
-                            </motion.div>
+                            </div>
                         )}
-                    </div>
-                ) : (
-                    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white/5 backdrop-blur-xl p-12 rounded-[2rem] border border-white/10 text-center mt-10 shadow-2xl">
-                        <h2 className="text-3xl font-extrabold mb-4 text-white">No Active Data Links</h2>
-                        <p className="text-gray-400 mb-8 max-w-md mx-auto">Your rental sequence is empty. Traverse the grid to find available modules.</p>
-                        <Link to="/properties" className="bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-10 py-4 rounded-xl font-bold inline-block shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:scale-105 transition-transform">Explore The Grid</Link>
-                    </motion.div>
-                )}
+                    </section>
+                </div>
             </div>
         </div>
     );

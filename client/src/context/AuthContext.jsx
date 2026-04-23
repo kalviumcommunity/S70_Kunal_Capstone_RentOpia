@@ -11,14 +11,29 @@ export const AuthProvider = ({ children }) => {
   axios.defaults.baseURL = 'http://localhost:5000/api';
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Attach token to every request
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchUserProfile();
-    } else {
-      setLoading(false);
-    }
+    const checkAuth = async () => {
+      // 1. Check for token in URL (Google OAuth Redirect)
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get('token');
+      
+      let token = urlToken || localStorage.getItem('token');
+      
+      if (urlToken) {
+        localStorage.setItem('token', urlToken);
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      if (token) {
+        // Attach token to every request
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        fetchUserProfile();
+      } else {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   const fetchUserProfile = async () => {

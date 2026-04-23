@@ -1,153 +1,154 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Search, MapPin, DollarSign, Filter, ArrowRight, Tags } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, MapPin, ChevronRight as ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const Properties = () => {
-  const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ search: '', location: '', maxPrice: '', category: '' });
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [page, setPage] = useState(1);
 
-  const fetchListings = async () => {
-    setLoading(true);
-    try {
-      const queryParams = new URLSearchParams();
-      if (filters.search) queryParams.append('search', filters.search);
-      if (filters.location) queryParams.append('location', filters.location);
-      if (filters.maxPrice) queryParams.append('maxPrice', filters.maxPrice);
-      if (filters.category) queryParams.append('category', filters.category);
+  const categories = ['Real Estate', 'Vehicles', 'Furniture', 'Electronics', 'Utensils', 'Tools', 'Other'];
 
-      const res = await axios.get(`/listings?${queryParams.toString()}`);
-      setListings(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // React Query for data fetching & caching
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['listings', category, page, search],
+    queryFn: async () => {
+      const res = await axios.get(`/listings`, {
+        params: { search, category, page, limit: 6 }
+      });
+      return res.data;
+    },
+    keepPreviousData: true, // Replaced by placeholderData in v5, but for v4 it's keepPreviousData
+  });
 
-  useEffect(() => {
-    fetchListings();
-    // eslint-disable-next-line
-  }, []);
-
-  const handleFilterSubmit = (e) => {
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchListings();
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 100 } }
+    setPage(1);
+    refetch();
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-4 relative overflow-hidden">
-      
-      {/* Background elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-600/10 blur-[100px] pointer-events-none rounded-full"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-cyan-600/10 blur-[120px] pointer-events-none rounded-full"></div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        <motion.h1 
-          initial={{ opacity:0, x: -50 }} animate={{ opacity:1, x:0 }}
-          className="text-5xl font-extrabold text-white mb-8 tracking-tighter"
-        >
-          Explore <span className="text-cyan-400 glow-text-cyan">Rentals</span>
-        </motion.h1>
+    <div className="min-h-screen pt-28 pb-20 px-4 bg-[#0B0F19]">
+      <div className="max-w-7xl mx-auto">
         
-        {/* Filter Bar */}
-        <motion.div 
-          initial={{ opacity:0, y: 20 }} animate={{ opacity:1, y:0 }} transition={{ delay: 0.2 }}
-          className="bg-white/5 backdrop-blur-2xl p-6 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] mb-12 border border-white/10"
-        >
-          <form onSubmit={handleFilterSubmit} className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative group">
-              <Search className="absolute left-4 top-3.5 text-cyan-400/60 group-focus-within:text-cyan-400 transition-colors" size={20} />
-              <input type="text" placeholder="Search parameters..." value={filters.search} onChange={e => setFilters({...filters, search: e.target.value})} className="w-full pl-12 pr-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none transition-all" />
-            </div>
-            
-            <div className="flex-1 relative group">
-               <Tags className="absolute left-4 top-3.5 text-purple-400/60 group-focus-within:text-purple-400 transition-colors" size={20} />
-               <select value={filters.category} onChange={e => setFilters({...filters, category: e.target.value})} className="w-full pl-12 pr-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none transition-all appearance-none cursor-pointer">
-                  <option value="" className="bg-gray-900">Global Directive (All)</option>
-                  <option value="Real Estate" className="bg-gray-900">Habitat</option>
-                  <option value="Vehicles" className="bg-gray-900">Transport</option>
-                  <option value="Furniture" className="bg-gray-900">Furniture</option>
-                  <option value="Electronics" className="bg-gray-900">Electronics</option>
-                  <option value="Utensils" className="bg-gray-900">Utensils</option>
-                  <option value="Tools" className="bg-gray-900">Tools</option>
-                  <option value="Other" className="bg-gray-900">Other</option>
-               </select>
+        {/* Header & Filter Bar */}
+        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Explore The <span className="text-cyan-400 glow-text-cyan">Grid</span></h1>
+            <p className="text-gray-400 font-mono text-sm uppercase tracking-widest">Interface: Accessing Global Assets</p>
+          </div>
+
+          <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-md">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+              <input 
+                type="text" 
+                placeholder="Search modules..." 
+                className="bg-black/40 border border-white/5 text-white pl-10 pr-4 py-2.5 rounded-xl focus:border-cyan-400 outline-none w-64 transition-all"
+                value={search} onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
 
-            <div className="flex-1 relative group">
-              <MapPin className="absolute left-4 top-3.5 text-cyan-400/60 group-focus-within:text-cyan-400 transition-colors" size={20} />
-              <input type="text" placeholder="Coordinates..." value={filters.location} onChange={e => setFilters({...filters, location: e.target.value})} className="w-full pl-12 pr-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none transition-all" />
-            </div>
-            
-            <button type="submit" className="bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-black font-extrabold px-8 py-3 rounded-xl shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95">
-               <Filter size={20} /> Initialize
+            <select 
+              className="bg-black/40 border border-white/5 text-white px-4 py-2.5 rounded-xl focus:border-purple-400 outline-none cursor-pointer appearance-none min-w-[150px]"
+              value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+            >
+              <option value="">All Categories</option>
+              {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+
+            <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold px-6 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)] min-w-[100px]">
+              Query
             </button>
           </form>
-        </motion.div>
+        </div>
 
         {/* Listings Grid */}
-        {loading ? (
-          <div className="flex justify-center py-32"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)]"></div></div>
+        {isLoading ? (
+            <SkeletonLoader count={6} />
+        ) : isError ? (
+            <div className="text-center py-20 text-red-500 font-mono">CONNECTION ERROR: ACCESS DENIED.</div>
         ) : (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {listings.length === 0 ? (
-              <div className="col-span-full text-center py-20 text-gray-500 text-lg border border-dashed border-white/10 rounded-2xl">
-                No signals found matching your parameters.
-              </div>
-            ) : (
-              <AnimatePresence>
-                {listings.map(item => (
-                  <motion.div 
-                    key={item._id}
-                    variants={itemVariants}
-                    whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                    className="bg-[#111827]/80 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col group relative hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-colors"
-                  >
-                    <div className="absolute top-4 left-4 z-10 bg-black/80 backdrop-blur-md border border-white/10 text-cyan-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-                       {item.category}
+          <>
+            <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+              {data?.listings.length === 0 && (
+                <div className="col-span-full py-20 text-center border border-dashed border-white/10 rounded-3xl">
+                  <p className="text-gray-500 font-mono tracking-widest text-lg">NO MATCHING DATA PACKETS FOUND.</p>
+                </div>
+              )}
+              
+              {data?.listings.map((item, index) => (
+                <motion.div
+                  key={item._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }} whileHover={{ y: -8 }}
+                  className="group bg-[#111827]/60 border border-white/10 rounded-3xl overflow-hidden hover:border-cyan-500/50 transition-all shadow-xl"
+                >
+                  <Link to={`/properties/${item._id}`}>
+                    <div className="relative h-64 overflow-hidden">
+                       <img 
+                        src={item.images?.[0] || 'https://via.placeholder.com/800'} 
+                        alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+                      />
+                      <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/20 text-cyan-400 text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">{item.category}</div>
+                      <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#111827] to-transparent"></div>
                     </div>
-                    <div className="relative h-64 overflow-hidden bg-black/50">
-                      <img src={item.images?.[0] || 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80'} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 group-hover:opacity-80 transition-all duration-700 mix-blend-luminosity hover:mix-blend-normal" />
-                      <div className="absolute top-4 right-4 bg-purple-600/90 backdrop-blur-md px-4 py-2 rounded-full font-bold text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] border border-purple-400/30">
-                        ${item.price}<span className="text-sm font-normal text-purple-200">{item.pricingBasis}</span>
+
+                    <div className="p-6 relative">
+                      <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-1 mb-2">{item.title}</h3>
+                      <div className="flex items-center gap-2 text-gray-500 text-sm mb-6 uppercase tracking-wider font-mono">
+                        <MapPin size={12} className="text-cyan-500/50" /> {item.location || 'Global Sector'}
+                      </div>
+                      <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                         <div>
+                            <span className="text-[10px] uppercase text-gray-400 block mb-1">Access Credit</span>
+                            <div className="text-xl font-black text-white">${item.price}<span className="text-sm font-normal text-gray-500">{item.pricingBasis}</span></div>
+                         </div>
+                         <div className="bg-cyan-500/10 text-cyan-400 p-3 rounded-2xl group-hover:bg-cyan-500 group-hover:text-black transition-all">
+                            <ArrowRight size={20} />
+                         </div>
                       </div>
                     </div>
-                    <div className="p-6 flex-grow flex flex-col relative z-20 bg-gradient-to-t from-[#0B0F19] to-transparent">
-                      {item.location && (
-                         <div className="flex items-center gap-2 text-xs text-gray-400 mb-3 font-medium uppercase tracking-wider">
-                           <MapPin size={14} className="text-cyan-500"/> {item.location}
-                         </div>
-                      )}
-                      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors">{item.title}</h3>
-                      <p className="text-gray-400 mb-6 flex-grow line-clamp-2 font-light text-sm">{item.description}</p>
-                      
-                      <Link to={`/properties/${item._id}`} className="mt-auto px-6 py-3 bg-white/5 hover:bg-cyan-500/10 text-cyan-400 border border-white/10 hover:border-cyan-500/30 font-bold rounded-xl flex items-center justify-between transition-all group-hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]">
-                        Access Data <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Pagination Controls */}
+            {data?.pagination.pages > 1 && (
+              <div className="flex justify-center items-center gap-3">
+                <button 
+                  disabled={page === 1} onClick={() => setPage(p => p - 1)}
+                  className="p-3 bg-white/5 border border-white/10 rounded-xl text-white disabled:opacity-20 hover:bg-white/10 transition-colors"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <div className="flex gap-2">
+                  {[...Array(data.pagination.pages)].map((_, i) => (
+                    <button
+                      key={i + 1} onClick={() => setPage(i + 1)}
+                      className={`w-10 h-10 rounded-xl font-bold transition-all border ${
+                        page === i + 1 
+                          ? 'bg-cyan-500 text-black border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' 
+                          : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  disabled={page === data.pagination.pages} onClick={() => setPage(p => p + 1)}
+                  className="p-3 bg-white/5 border border-white/10 rounded-xl text-white disabled:opacity-20 hover:bg-white/10 transition-colors"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
             )}
-          </motion.div>
+          </>
         )}
       </div>
     </div>

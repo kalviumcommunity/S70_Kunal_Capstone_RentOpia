@@ -25,7 +25,7 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col relative w-full overflow-hidden">
+    <div className="flex flex-col relative w-full overflow-hidden bg-slate-950 grid-bg">
       
       {/* Background Floating Orbs */}
       <div className="absolute top-0 w-full h-[150vh] overflow-hidden pointer-events-none z-0">
@@ -35,7 +35,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden z-10 pt-20">
-        <div className="absolute inset-0 bg-[#0B0F19]/60 z-10"></div>
+        <div className="absolute inset-0 bg-slate-950/80 z-10"></div>
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1555529733-0e670560f8e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center mix-blend-luminosity opacity-20 z-0" />
         
         <motion.div 
@@ -53,7 +53,7 @@ const Home = () => {
              The Neon Network
           </motion.div>
           <h1 className="text-6xl md:text-8xl font-extrabold text-white mb-6 drop-shadow-2xl tracking-tighter">
-            Rent <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 glow-text-cyan">Anything.</span><br/>Anytime.
+            Rent <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500 glow-text-cyan underline decoration-cyan-500/30 underline-offset-8">Anything.</span><br/>Anytime.
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
             Jack into the grid. From hyper-cars and electronics to luxury apartments and tools. Everything is connected.
@@ -134,7 +134,7 @@ const Home = () => {
            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 relative z-10 drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)]">Monetize Your <span className="text-cyan-400 glow-text-cyan">Inventory</span></h2>
            <p className="text-gray-300 text-xl font-light mb-10 relative z-10 max-w-2xl">Join the decentralized node of owners maximizing the credit value of their unused assets securely and seamlessly.</p>
            
-           <Link to="/register" className="bg-cyan-500 hover:bg-cyan-400 text-[#0B0F19] font-black py-4 px-12 rounded-full text-xl shadow-[0_0_20px_rgba(34,211,238,0.5)] relative z-10 hover:scale-105 transition-all">
+           <Link to="/register" className="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-black py-4 px-12 rounded-2xl text-xl shadow-[0_0_40px_rgba(34,211,238,0.2)] relative z-10 hover:scale-105 transition-all outline outline-1 outline-cyan-400/30">
              Initialize Profile sequence
            </Link>
         </motion.div>
